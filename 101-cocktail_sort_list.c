@@ -1,73 +1,63 @@
 #include "sort.h"
 
 /**
- * quick_sort - function that sorts an array of integers
- *              in ascending order using the Quick sort algorithm
- * @array: array
- * @size: array's size
- * Return: void
+ * cocktail_sort_list - Sorts a doubly linked list of integers in ascending order
+ *                       using the Cocktail shaker sort algorithm.
+ *
+ * @list: Double pointer to the head of the list
  */
-void quick_sort(int *array, size_t size)
+void cocktail_sort_list(listint_t **list)
 {
-	if (array == NULL || size < 2)
-		return;
+    int swapped;
+    listint_t *start = NULL;
+    listint_t *end = NULL;
 
-	quick_s(array, 0, size - 1, size);
-}
+    if (list == NULL || *list == NULL)
+        return;
 
-/**
- * partition - partition
- * @array: array
- * @lo: lower
- * @hi: higher
- * @size: array's size
- * Return: i
- */
-int partition(int *array, int lo, int hi, size_t size)
-{
-	int i = lo - 1, j = lo;
-	int pivot = array[hi], aux = 0;
-
-	for (; j < hi; j++)
-	{
-		if (array[j] < pivot)
-		{
-			i++;
-			if (array[i] != array[j])
-			{
-				aux = array[i];
-				array[i] = array[j];
-				array[j] = aux;
-				print_array(array, size);
-			}
-		}
-	}
-	if (array[i + 1] != array[hi])
-	{
-		aux = array[i + 1];
-		array[i + 1] = array[hi];
-		array[hi] = aux;
-		print_array(array, size);
-	}
-	return (i + 1);
-}
-
-/**
- * quick_s - quick sort
- * @array: given array
- * @lo: lower
- * @hi:higher
- * @size: array's size
- * Return: void
- */
-void quick_s(int *array, int lo, int hi, size_t size)
-{
-	int pivot;
-
-	if (lo < hi)
-	{
-		pivot = partition(array, lo, hi, size);
-		quick_s(array, lo, pivot - 1, size);
-		quick_s(array, pivot + 1, hi, size);
-	}
+    do {
+        swapped = 0;
+        for (listint_t *current = *list; current->next != end; current = current->next)
+        {
+            if (current->n > current->next->n)
+            {
+                if (current->prev)
+                    current->prev->next = current->next;
+                else
+                    *list = current->next;
+                if (current->next->next)
+                    current->next->next->prev = current;
+                current->next->prev = current->prev;
+                current->prev = current->next;
+                current->next = current->next->next;
+                current->prev->next = current;
+                swapped = 1;
+                print_list(*list);
+            }
+        }
+        end = (*list)->prev;
+        if (!swapped)
+            break;
+        swapped = 0;
+        for (listint_t *current = end; current->prev != start; current = current->prev)
+        {
+            if (current->n < current->prev->n)
+            {
+                if (current->next)
+                    current->next->prev = current->prev;
+                else
+                    end = current->prev;
+                if (current->prev->prev)
+                    current->prev->prev->next = current;
+                current->next = current->prev;
+                current->prev = current->prev->prev;
+                current->next->prev = current;
+                if (!current->prev)
+                    *list = current;
+                swapped = 1;
+                print_list(*list);
+            }
+        }
+        start = (*list)->next;
+    } while (swapped);
 }
